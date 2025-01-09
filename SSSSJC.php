@@ -1,25 +1,37 @@
+  <?php
+  session_start();
+  // Prevent caching
+  header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+  header("Cache-Control: post-check=0, pre-check=0", false);
+  header("Pragma: no-cache");
 
-<?php
-session_start();
-$conn = mysqli_connect("localhost", "root", "", "shop_db");
+  if(isset($_SESSION['username'])) {
+      header("Location: shop_interface.php");
+      exit();
+  }
+  $conn = mysqli_connect("localhost", "root", "", "shop_db");
 
-if(isset($_POST['login'])) {
-    $username = mysqli_real_escape_string($conn, $_POST['username']);
-    $password = mysqli_real_escape_string($conn, $_POST['password']);
+  if(isset($_POST['login'])) {
+      $username = mysqli_real_escape_string($conn, $_POST['username']);
+      $password = mysqli_real_escape_string($conn, $_POST['password']);
     
-    $query = "SELECT * FROM users WHERE username='$username' AND password='$password'";
-    $result = mysqli_query($conn, $query);
+      $query = "SELECT * FROM users WHERE username='$username'";
+      $result = mysqli_query($conn, $query);
     
-    if(mysqli_num_rows($result) == 1) {
-        $_SESSION['username'] = $username;
-        header("Location: shop_interface.php");
-        exit();
-    } else {
-        $error = "Invalid username or password";
-    }
-}
-?>
-
+      if(mysqli_num_rows($result) == 1) {
+          $user = mysqli_fetch_assoc($result);
+          if(password_verify($password, $user['password'])) {
+              $_SESSION['username'] = $username;
+              header("Location: shop_interface.php");
+              exit();
+          } else {
+              $error = "Invalid username or password";
+          }
+      } else {
+          $error = "Invalid username or password";
+      }
+  }
+  ?>
 <!doctype html>
 <html lang="en">
     <head>
@@ -59,6 +71,14 @@ if(isset($_POST['login'])) {
                 color: red;
                 margin-bottom: 10px;
             }
+            .signup-link {
+                margin-top: 20px;
+    	    }
+    	    .signup-link a {
+    	        text-decoration: none;
+    	        padding: 8px 15px;
+    	    }
+
         </style>
         <!-- Required meta tags -->
         <meta charset="utf-8" />
@@ -92,6 +112,9 @@ if(isset($_POST['login'])) {
                 <input type="submit" name="login" value="Login">
             </form>
             </div>
+            <div class="signup-link" style="text-align: center; margin-top: 15px;">
+                <p>Don't have an account? <a href="signup.php" class="btn btn-secondary">Sign Up</a></p>
+            </div>
         </main>
         <footer>
             <!-- place footer here -->
@@ -108,5 +131,13 @@ if(isset($_POST['login'])) {
             integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
             crossorigin="anonymous"
         ></script>
+        <script>
+            window.history.pushState(null, null, window.location.href);
+            window.onpopstate = function () {
+                window.history.pushState(null, null, window.location.href);
+            };
+        </script>
     </body>
 </html>
+
+
