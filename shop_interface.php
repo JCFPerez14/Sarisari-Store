@@ -37,21 +37,82 @@ $isAdmin = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
         }
     }
 ?>
+
 <!doctype html>
 <html lang="en">
     <head>
         <title>Shop Item CRUD</title>
         <style>
-            body { font-family: Arial, sans-serif; margin: 20px; }
-            .form-group { margin-bottom: 15px; }
-            label { display: inline-block; width: 120px; }
-            input[type="text"], input[type="number"], input[type="datetime-local"] {
-                padding: 5px;
-                width: 200px;
+            :root {
+                --primary-color: #2c3e50;
+                --secondary-color: #34495e;
             }
-            table { border-collapse: collapse; width: 100%; }
-            th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-            th { background-color: #f2f2f2; }
+
+            body {
+                background-color: #f8f9fa;
+                color: var(--primary-color);
+            }
+
+            .dashboard-header {
+                background-color: var(--primary-color);
+                color: white;
+                padding: 1rem;
+                margin-bottom: 2rem;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+
+            .card {
+                border: none;
+                border-radius: 10px;
+                box-shadow: 0 0 15px rgba(0,0,0,0.1);
+                margin-bottom: 2rem;
+            }
+
+            .card-header {
+                background-color: var(--secondary-color);
+                color: white;
+                border-radius: 10px 10px 0 0 !important;
+            }
+
+            .form-control {
+                border-radius: 5px;
+                border: 1px solid #dee2e6;
+                padding: 0.5rem;
+            }
+
+            .btn-custom {
+                background-color: var(--primary-color);
+                color: white;
+                border-radius: 5px;
+                padding: 0.5rem 1rem;
+                transition: all 0.3s;
+            }
+
+            .btn-custom:hover {
+                background-color: var(--secondary-color);
+                transform: translateY(-2px);
+            }
+
+            .table {
+                background-color: white;
+                border-radius: 10px;
+                overflow: hidden;
+            }
+
+            .table th {
+                background-color: var(--secondary-color);
+                color: white;
+                border: none;
+            }
+
+            .message {
+                padding: 1rem;
+                border-radius: 5px;
+                background-color: #d4edda;
+                border-color: #c3e6cb;
+                color: #155724;
+                margin-bottom: 1rem;
+            }
         </style>
         <!-- Required meta tags -->
         <meta charset="utf-8" />
@@ -70,75 +131,105 @@ $isAdmin = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
     </head>
 
     <body>
-        <header>
-            <!-- place navbar here -->
-            <div>
+        <header class="dashboard-header">
+        <div class="container">
+            <div class="d-flex justify-content-between align-items-center">
+                <h2 class="mb-0"><i class="fas fa-store me-2"></i>Shop Item Management</h2>
                 <form method="post" action="logout.php">
-                <button type="submit" class="btn btn-danger float-end">Logout</button>
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-sign-out-alt me-2"></i>Logout
+                    </button>
                 </form>
             </div>
+        </div>
         </header>
-        <main>     
-            <h2>Add New Item</h2>
-            <form method="post" action="<?php echo $_SERVER['PHP_SELF']; ?>">
-                <div class="form-group">
-                    <label>Item Name:</label>
-                    <input type="text" name="item" required>
+        <main class="container">
+            <?php if(isset($message)): ?>
+                <div class="message">
+                    <i class="fas fa-check-circle me-2"></i><?php echo $message; ?>
                 </div>
-                <div class="form-group">
-                    <label>Price:</label>
-                    <input type="number" step="0.01" name="price" required>
+            <?php endif; ?>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0"><i class="fas fa-plus-circle me-2"></i>Add New Item</h3>
                 </div>
-                <div class="form-group">
-                    <label>Quantity:</label>
-                    <input type="number" name="quantity" required>
+                <div class="card-body">
+                    <form method="post" class="row g-3">
+                        <div class="col-md-3">
+                            <label class="form-label">Item Name</label>
+                            <input type="text" name="item" class="form-control" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Price</label>
+                            <input type="number" step="0.01" name="price" class="form-control" required>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Quantity</label>
+                            <input type="number" name="quantity" class="form-control" required>
+                        </div>
+                        <div class="col-md-3 d-flex align-items-end">
+                            <button type="submit" name="submit" class="btn btn-custom w-100">
+                                <i class="fas fa-plus me-2"></i>Add Item
+                            </button>
+                        </div>
+                    </form>
                 </div>
-                <input type="submit" name="submit" value="Add Item">
-            </form>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0"><i class="fas fa-list me-2"></i>Item List</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <tr>
+                            <th>ID</th>
+                            <th>Item Name</th>
+                            <th>Price</th>
+                            <th>Quantity</th>
+                            <th>Date Modified</th>
+                            <th>Actions</th>
+                        </tr>
+                        <?php
+                        $sql = "SELECT * FROM items";
+                        $result = $conn->query($sql);
 
-            <h2>Item List</h2>
-            <table>
-                <tr>
-                    <th>ID</th>
-                    <th>Item Name</th>
-                    <th>Price</th>
-                    <th>Quantity</th>
-                    <th>Date Modified</th>
-                    <th>Actions</th>
-                </tr>
-                <?php
-                $sql = "SELECT * FROM items";
-                $result = $conn->query($sql);
+                        if ($result->num_rows > 0) {
+                            while($row = $result->fetch_assoc()) {
+                                echo "<tr>";
+                                echo "<form method='post' action='".$_SERVER['PHP_SELF']."'>";
+                                echo "<input type='hidden' name='id' value='".$row['id']."'>";
+                                echo "<td>".$row['id']."</td>";
 
-                if ($result->num_rows > 0) {
-                    while($row = $result->fetch_assoc()) {
-                        echo "<tr>";
-                        echo "<form method='post' action='".$_SERVER['PHP_SELF']."'>";
-                        echo "<input type='hidden' name='id' value='".$row['id']."'>";
-                        echo "<td>".$row['id']."</td>";
-                        
-                        if ($isAdmin) {
-                            echo "<td><input type='text' name='item' value='".$row['item_name']."'></td>";
-                            echo "<td><input type='number' step='0.01' name='price' value='".$row['price']."'></td>";
-                            echo "<td><input type='number' name='quantity' value='".$row['quantity']."'></td>";
-                            echo "<td>".$row['date_modified']."</td>";
-                            echo "<td>
-                                    <input type='submit' name='update' value='Update'>
-                                    <input type='submit' name='delete' value='Delete'>
-                                  </td>";
-                        } else {
-                            echo "<td>".$row['item_name']."</td>";
-                            echo "<td>".$row['price']."</td>";
-                            echo "<td>".$row['quantity']."</td>";
-                            echo "<td>".$row['date_modified']."</td>";
-                            echo "<td></td>";
+                                if ($isAdmin) {
+                                    echo "<td><input type='text' name='item' value='".$row['item_name']."'></td>";
+                                    echo "<td><input type='number' step='0.01' name='price' value='".$row['price']."'></td>";
+                                    echo "<td><input type='number' name='quantity' value='".$row['quantity']."'></td>";
+                                    echo "<td>".$row['date_modified']."</td>";
+                                        echo "<td class='d-flex gap-2'>
+                                          <button type='submit' name='update' class='btn btn-custom'><i class='fas fa-edit me-2'></i>Update</button>
+                                          <button type='submit' name='delete' class='btn btn-danger'>
+                                              <i class='fas fa-trash me-2'></i>Delete
+                                          </button>
+                                        </td>";
+                                } else {
+                                    echo "<td>".$row['item_name']."</td>";
+                                    echo "<td>".$row['price']."</td>";
+                                    echo "<td>".$row['quantity']."</td>";
+                                    echo "<td>".$row['date_modified']."</td>";
+                                    echo "<td></td>";
+                                }
+                                echo "</form>";
+                                echo "</tr>";
+                            }
                         }
-                        echo "</form>";
-                        echo "</tr>";
-                    }
-                }
-                ?>
-            </table>
+                        ?>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </main>
         <footer>
             <!-- place footer here -->
@@ -163,5 +254,6 @@ $isAdmin = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
         </script>
     </body>
 </html>
+
 
 

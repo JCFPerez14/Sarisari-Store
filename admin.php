@@ -39,30 +39,30 @@ $conn = connectDB();
     }
 }
 ?>
- <!doctype html>
- <html lang="en">
+<!doctype html>
+<html lang="en">
+<head>
+    
+</head>
+
+<body>
+    
+
+    
+
+</body>
+</html>
+<!doctype html>
+<html lang="en">
     <head>
-        <title>User Management</title>
-            <style>
-                body { font-family: Arial, sans-serif; margin: 20px; }
-                .form-group { margin-bottom: 15px; }
-                label { display: inline-block; width: 120px; }
-                input[type="text"], input[type="password"] {
-                    padding: 5px;
-                    width: 200px;
-                }
-                table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-                th, td { border: 1px solid #ddd; padding: 8px; text-align: left; }
-                th { background-color: #f2f2f2; }
-                .message { color: green; margin-bottom: 10px; }
-            </style>
+    <title>User Management Dashboard</title>
         <!-- Required meta tags -->
         <meta charset="utf-8" />
         <meta
             name="viewport"
             content="width=device-width, initial-scale=1, shrink-to-fit=no"
         />
- 
+
         <!-- Bootstrap CSS v5.2.1 -->
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
@@ -70,69 +70,171 @@ $conn = connectDB();
             integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
             crossorigin="anonymous"
         />
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+        <style>
+            :root {
+                --primary-color: #2c3e50;
+                --secondary-color: #34495e;
+            }
+            
+            body {
+                background-color: #f8f9fa;
+                color: var(--primary-color);
+            }
+            
+            .dashboard-header {
+                background-color: var(--primary-color);
+                color: white;
+                padding: 1rem;
+                margin-bottom: 2rem;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            
+            .card {
+                border: none;
+                border-radius: 10px;
+                box-shadow: 0 0 15px rgba(0,0,0,0.1);
+                margin-bottom: 2rem;
+            }
+            
+            .card-header {
+                background-color: var(--secondary-color);
+                color: white;
+                border-radius: 10px 10px 0 0 !important;
+            }
+            
+            .form-control {
+                border-radius: 5px;
+                border: 1px solid #dee2e6;
+                padding: 0.5rem;
+            }
+            
+            .btn-custom {
+                background-color: var(--primary-color);
+                color: white;
+                border-radius: 5px;
+                padding: 0.5rem 1rem;
+                transition: all 0.3s;
+            }
+            
+            .btn-custom:hover {
+                background-color: var(--secondary-color);
+                transform: translateY(-2px);
+            }
+            
+            .table {
+                background-color: white;
+                border-radius: 10px;
+                overflow: hidden;
+            }
+            
+            .table th {
+                background-color: var(--secondary-color);
+                color: white;
+                border: none;
+            }
+            
+            .message {
+                padding: 1rem;
+                border-radius: 5px;
+                background-color: #d4edda;
+                border-color: #c3e6cb;
+                color: #155724;
+                margin-bottom: 1rem;
+            }
+        </style>
     </head>
- 
+
     <body>
-        <header>
-            <!-- place navbar here -->
-            <div>
-                <form method="post" action="logout.php">
-                    <button type="submit" class="btn btn-danger float-end">Logout</button>
-                    <h2>User Management</h2>
-                </form>
+        <header class="dashboard-header">
+            <div class="container">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h2 class="mb-0"><i class="fas fa-users-cog me-2"></i>User Management Dashboard</h2>
+                    <form method="post" action="logout.php">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </button>
+                    </form>
+                </div>
             </div>
         </header>
-        <main>
-            <?php if(isset($message)) echo "<div class='message'>$message</div>"; ?>
-
-            <h3>Add New User</h3>
-            <form method="post">
-                <div class="form-group">
-                    <label>Username:</label>
-                    <input type="text" name="username" required>
+            <main class="container">
+            <?php if(isset($message)): ?>
+                <div class="message">
+                    <i class="fas fa-check-circle me-2"></i><?php echo $message; ?>
                 </div>
-                <div class="form-group">
-                    <label>Password:</label>
-                    <input type="password" name="password" required>
+            <?php endif; ?>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0"><i class="fas fa-user-plus me-2"></i>Add New User</h3>
                 </div>
-                <input type="submit" name="add_user" value="Add User">
-            </form>
-
-            <h3>User List</h3>
-            <table>
-                <tr>
-                    <th>ID</th>
-                    <th>Username</th>
-                    <th>New Password</th>
-                    <th>Actions</th>
-                </tr>
-                <?php
-                $sql = "SELECT user_id, username FROM users";
-                $result = $conn->query($sql);
-                  while($row = $result->fetch_assoc()) {
-                      echo "<tr>";
-                      echo "<form method='post'>";
-                      echo "<input type='hidden' name='user_id' value='".(isset($row['user_id']) ? $row['user_id'] : '')."'>";
-                      echo "<td>".(isset($row['user_id']) ? $row['user_id'] : '')."</td>";
-                        if ($isSAdmin) {
-                            echo "<td><input type='text' name='username' value='".$row['username']."'></td>";
-                            echo "<td><input type='password' name='password' placeholder='Leave empty to keep current'></td>";
-                            echo "<td>";
-                            echo "<input type='submit' name='update_user' value='Update'>";
-                            if($row['username'] != 'SuperAdmin') {
-                                echo " <input type='submit' name='delete_user' value='Delete'>";
-                            }
-                            echo "</td>";
-                        } else {
-                            echo "<td>".$row['username']."</td>";
-                            echo "<td>********</td>";
-                            echo "<td>No actions available</td>";
-                        }
-                      echo "</form>";
-                      echo "</tr>";
-                }
-                ?>
-            </table>
+                <div class="card-body">
+                    <form method="post" class="row g-3">
+                        <div class="col-md-5">
+                            <label class="form-label">Username</label>
+                            <input type="text" name="username" class="form-control" required>
+                        </div>
+                        <div class="col-md-5">
+                            <label class="form-label">Password</label>
+                            <input type="password" name="password" class="form-control" required>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="submit" name="add_user" class="btn btn-custom w-100">
+                                <i class="fas fa-plus me-2"></i>Add User
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="mb-0"><i class="fas fa-user-list me-2"></i>User List</h3>
+                </div>
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Username</th>
+                                    <th>New Password</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php
+                                $sql = "SELECT user_id, username FROM users";
+                                $result = $conn->query($sql);
+                                while($row = $result->fetch_assoc()) {
+                                    echo "<tr>";
+                                    echo "<form method='post'>";
+                                    echo "<input type='hidden' name='user_id' value='".(isset($row['user_id']) ? $row['user_id'] : '')."'>";
+                                    echo "<td>".(isset($row['user_id']) ? $row['user_id'] : '')."</td>";
+                                    if ($isSAdmin) {
+                                        echo "<td><input type='text' name='username' value='".$row['username']."' class='form-control'></td>";
+                                        echo "<td><input type='password' name='password' placeholder='Leave empty to keep current' class='form-control'></td>";
+                                        echo "<td class='d-flex gap-2'>";
+                                        echo "<button type='submit' name='update_user' class='btn btn-custom'><i class='fas fa-edit me-2'></i>Update</button>";
+                                        if($row['username'] != 'SuperAdmin') {
+                                            echo "<button type='submit' name='delete_user' class='btn btn-danger'><i class='fas fa-trash me-2'></i>Delete</button>";
+                                        }
+                                        echo "</td>";
+                                    } else {
+                                        echo "<td>".$row['username']."</td>";
+                                        echo "<td>********</td>";
+                                        echo "<td>No actions available</td>";
+                                    }
+                                    echo "</form>";
+                                    echo "</tr>";
+                                }
+                                ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
         </main>
         <footer>
             <!-- place footer here -->
@@ -143,12 +245,13 @@ $conn = connectDB();
             integrity="sha384-I7E8VVD/ismYTF4hNIPjVp/Zjvgyol6VFvRkX/vR+Vc4jQkC+hVqc2pM8ODewa9r"
             crossorigin="anonymous"
         ></script>
- 
+
         <script
             src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.min.js"
             integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4QzX+"
             crossorigin="anonymous"
         ></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     </body>
- </html>
- 
+</html>
+
