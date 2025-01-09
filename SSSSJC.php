@@ -22,7 +22,14 @@
           $user = mysqli_fetch_assoc($result);
           if(password_verify($password, $user['password'])) {
               $_SESSION['username'] = $username;
-              header("Location: shop_interface.php");
+              $_SESSION['role'] = $user['role']; // Store the role in session
+              
+              // Redirect based on role
+              if ($_SESSION['role'] === 'SuperAdmin') {
+                  header("Location: admin.php");
+              } else {
+                  header("Location: shop_interface.php");
+              }
               exit();
           } else {
               $error = "Invalid username or password";

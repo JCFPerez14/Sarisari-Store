@@ -1,16 +1,11 @@
 <?php
 require_once 'db_to_php.php';
 startSecureSession();
-requireAdmin();
+requireLogin();
 $conn = connectDB();
-
-// Add cache control headers
-header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-header("Cache-Control: post-check=0, pre-check=0", false);
-header("Pragma: no-cache");
-
 // Add admin verification before any modification operations
-if ($_SERVER["REQUEST_METHOD"] == "POST" && $_SESSION['username'] === 'admin') {
+    $isSAdmin = isset($_SESSION['role']) && $_SESSION['role'] === 'SuperAdmin';    
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && $isSAdmin) {
     if (isset($_POST['add_user'])) {
         $username = mysqli_real_escape_string($conn, $_POST['username']);
         $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
@@ -22,13 +17,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_SESSION['username'] === 'admin') {
     }
     
     if (isset($_POST['update_user'])) {
-        $id = (int)$_POST['id'];
+        $user_id = (int)$_POST['user_id'];
         $username = mysqli_real_escape_string($conn, $_POST['username']);
         if (!empty($_POST['password'])) {
             $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
-            $sql = "UPDATE users SET username='$username', password='$password' WHERE id=$id";
+            $sql = "UPDATE users SET username='$username', password='$password' WHERE user_id=$user_id";
         } else {
-            $sql = "UPDATE users SET username='$username' WHERE id=$id";
+            $sql = "UPDATE users SET username='$username' WHERE user_id=$user_id";
         }
         if ($conn->query($sql) === TRUE) {
             $message = "User updated successfully";
@@ -36,8 +31,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_SESSION['username'] === 'admin') {
     }
     
     if (isset($_POST['delete_user'])) {
-        $id = (int)$_POST['id'];
-        $sql = "DELETE FROM users WHERE id=$id AND username != 'admin'";
+        $user_id = (int)$_POST['user_id'];
+        $sql = "DELETE FROM users WHERE user_id=$user_id AND username != 'admin'";
         if ($conn->query($sql) === TRUE) {
             $message = "User deleted successfully";
         }
@@ -80,6 +75,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_SESSION['username'] === 'admin') {
     <body>
         <header>
             <!-- place navbar here -->
+            <div style="text-align: right; padding: 10px;">
+                <form method="post" action="logout.php">
+                    <button type="submit" class="btn btn-danger">Logout</button>
+                </form>
+            </div>
         </header>
         <main>
         <h2>User Management</h2>
@@ -107,33 +107,30 @@ if ($_SERVER["REQUEST_METHOD"] == "POST" && $_SESSION['username'] === 'admin') {
                     <th>Actions</th>
                 </tr>
                 <?php
-                $sql = "SELECT * FROM users";
+                $sql = "SELECT user_id, username FROM users";
                 $result = $conn->query($sql);
-
-                while($row = $result->fetch_assoc()) {
-                    echo "<tr>";
-                    echo "<form method='post'>";
-                    echo "<input type='hidden' name='id' value='".$row['id']."'>";
-                    echo "<td>".$row['id']."</td>";
-                    
-                    // Only admin can see editable fields, others see plain text
-                    if ($_SESSION['username'] === 'admin') {
-                        echo "<td><input type='text' name='username' value='".$row['username']."'></td>";
-                        echo "<td><input type='password' name='password' placeholder='Leave empty to keep current'></td>";
-                        echo "<td>";
-                        echo "<input type='submit' name='update_user' value='Update'>";
-                        if($row['username'] != 'admin') {
-                            echo " <input type='submit' name='delete_user' value='Delete'>";
-                        }
-                        echo "</td>";
-                    } else {
-                        echo "<td>".$row['username']."</td>";
-                        echo "<td>********</td>";
-                        echo "<td>No actions available</td>";
-                    }
-                    
-                    echo "</form>";
-                    echo "</tr>";
+                  while($row = $result->fetch_assoc()) {
+                      echo "<tr>";
+                      echo "<form method='post'>";
+                      echo "<input type='hidden' name='user_id' value='".(isset($row['user_id']) ? $row['user_id'] : '')."'>";
+                      echo "<td>".(isset($row['user_id']) ? $row['user_id'] : '')."</td>";
+                                            // Replace the username check with role check
+                                            if ($isSAdmin) {
+                                                echo "<td><input type='text' name='username' value='".$row['username']."'></td>";
+                                                echo "<td><input type='password' name='password' placeholder='Leave empty to keep current'></td>";
+                                                echo "<td>";
+                                                echo "<input type='submit' name='update_user' value='Update'>";
+                                                if($row['username'] != 'admin') {
+                                                    echo " <input type='submit' name='delete_user' value='Delete'>";
+                                                }
+                                                echo "</td>";
+                                            } else {
+                                                echo "<td>".$row['username']."</td>";
+                                                echo "<td>********</td>";
+                                                echo "<td>No actions available</td>";
+                                            }
+                      echo "</form>";
+                      echo "</tr>";
                 }
                 ?>
             </table>

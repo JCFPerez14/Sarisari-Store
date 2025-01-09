@@ -5,7 +5,6 @@ function connectDB() {
     $username = "root";
     $password = "";
     $dbname = "shop_db";
-    
     $conn = new mysqli($servername, $username, $password, $dbname);
     if ($conn->connect_error) {
         die("Connection failed: " . $conn->connect_error);
@@ -13,9 +12,39 @@ function connectDB() {
     return $conn;
 }
 
+// Add this function to check admin role
+function isAdmin($conn, $username) {
+    $sql = "SELECT role FROM users WHERE username = '$username'";
+    $result = $conn->query($sql);
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        return $row['role'] === 'admin';
+    }
+    return false;
+}
+function isSAdmin($conn, $username) {
+    $sql = "SELECT role FROM users WHERE username = '$username'";
+    $result = $conn->query($sql);
+    if ($result->num_rows > 0) {
+        $row = $result->fetch_assoc();
+        return $row['role'] === 'SuperAdmin';
+    }
+    return false;
+}
+
 // Session management
 function startSecureSession() {
     session_start();
+    if(isset($_SESSION['username'])) {
+        $conn = connectDB();
+        if(isSAdmin($conn, $_SESSION['username'])) {
+            $_SESSION['role'] = 'SuperAdmin';
+        } else if(isAdmin($conn, $_SESSION['username'])) {
+            $_SESSION['role'] = 'admin';
+        } else {
+            $_SESSION['role'] = 'user';
+        }
+    }
     header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
     header("Cache-Control: post-check=0, pre-check=0", false);
     header("Pragma: no-cache");

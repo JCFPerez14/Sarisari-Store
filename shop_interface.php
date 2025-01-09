@@ -3,54 +3,40 @@ require_once 'db_to_php.php';
 startSecureSession();
 requireLogin();
 $conn = connectDB();
+$isAdmin = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
 
-if ($_SERVER["REQUEST_METHOD"] == "POST") {
-    if (isset($_POST['submit'])) {
-        $item = $_POST['item'];
-        $price = $_POST['price'];
-        $quantity = $_POST['quantity'];
-        $datemodified = $_POST['datemodified'];
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && $isAdmin) {
+        // Delete operation
+        if (isset($_POST['delete'])) {
+            $id = $_POST['id'];
+            $sql = "DELETE FROM items WHERE id=$id";
         
-        $sql = "INSERT INTO items (item_name, price, quantity, date_modified) 
-                VALUES ('$item', $price, $quantity, '$datemodified')";
-        
-        if ($conn->query($sql) === TRUE) {
-            echo "<p>New record created successfully</p>";
-        } else {
-            echo "Error: " . $sql . "<br>" . $conn->error;
+            if ($conn->query($sql) === TRUE) {
+                echo "<p>Record deleted successfully</p>";
+            }
         }
-    }
     
-    if (isset($_POST['delete'])) {
-        $id = $_POST['id'];
-        $sql = "DELETE FROM items WHERE id=$id";
+        // Update operation
+        if (isset($_POST['update'])) {
+            $id = $_POST['id'];
+            $item = $_POST['item'];
+            $price = $_POST['price'];
+            $quantity = $_POST['quantity'];
+            $datemodified = date('Y-m-d H:i:s');
         
-        if ($conn->query($sql) === TRUE) {
-            echo "<p>Record deleted successfully</p>";
+            $sql = "UPDATE items SET 
+                    item_name='$item', 
+                    price=$price, 
+                    quantity=$quantity, 
+                    date_modified='$datemodified' 
+                    WHERE id=$id";
+        
+            if ($conn->query($sql) === TRUE) {
+                echo "<p>Record updated successfully</p>";
+            }
         }
     }
-    
-    if (isset($_POST['update'])) {
-        $id = $_POST['id'];
-        $item = $_POST['item'];
-        $price = $_POST['price'];
-        $quantity = $_POST['quantity'];
-        $datemodified = $_POST['datemodified'];
-        
-        $sql = "UPDATE items SET 
-                item_name='$item', 
-                price=$price, 
-                quantity=$quantity, 
-                date_modified='$datemodified' 
-                WHERE id=$id";
-        
-        if ($conn->query($sql) === TRUE) {
-            echo "<p>Record updated successfully</p>";
-        }
-    }
-}
 ?>
-
 <!doctype html>
 <html lang="en">
     <head>
@@ -107,10 +93,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                     <label>Quantity:</label>
                     <input type="number" name="quantity" required>
                 </div>
-                <div class="form-group">
-                    <label>Date Modified:</label>
-                    <input type="datetime-local" name="datemodified" required>
-                </div>
                 <input type="submit" name="submit" value="Add Item">
             </form>
 
@@ -134,14 +116,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
                         echo "<form method='post' action='".$_SERVER['PHP_SELF']."'>";
                         echo "<input type='hidden' name='id' value='".$row['id']."'>";
                         echo "<td>".$row['id']."</td>";
-                        echo "<td><input type='text' name='item' value='".$row['item_name']."'></td>";
-                        echo "<td><input type='number' step='0.01' name='price' value='".$row['price']."'></td>";
-                        echo "<td><input type='number' name='quantity' value='".$row['quantity']."'></td>";
-                        echo "<td><input type='datetime-local' name='datemodified' value='".date('Y-m-d\TH:i', strtotime($row['date_modified']))."'></td>";
-                        echo "<td>
-                                <input type='submit' name='update' value='Update'>
-                                <input type='submit' name='delete' value='Delete'>
-                              </td>";
+                        
+                        if ($isAdmin) {
+                            echo "<td><input type='text' name='item' value='".$row['item_name']."'></td>";
+                            echo "<td><input type='number' step='0.01' name='price' value='".$row['price']."'></td>";
+                            echo "<td><input type='number' name='quantity' value='".$row['quantity']."'></td>";
+                            echo "<td>".$row['date_modified']."</td>";
+                            echo "<td>
+                                    <input type='submit' name='update' value='Update'>
+                                    <input type='submit' name='delete' value='Delete'>
+                                  </td>";
+                        } else {
+                            echo "<td>".$row['item_name']."</td>";
+                            echo "<td>".$row['price']."</td>";
+                            echo "<td>".$row['quantity']."</td>";
+                            echo "<td>".$row['date_modified']."</td>";
+                            echo "<td></td>";
+                        }
                         echo "</form>";
                         echo "</tr>";
                     }
