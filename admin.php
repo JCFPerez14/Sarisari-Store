@@ -32,7 +32,7 @@ $conn = connectDB();
     
     if (isset($_POST['delete_user'])) {
         $user_id = (int)$_POST['user_id'];
-        $sql = "DELETE FROM users WHERE user_id=$user_id AND username != 'admin'";
+        $sql = "DELETE FROM users WHERE user_id=$user_id AND username != 'SuperAdmin'";
         if ($conn->query($sql) === TRUE) {
             $message = "User deleted successfully";
         }
@@ -75,14 +75,14 @@ $conn = connectDB();
     <body>
         <header>
             <!-- place navbar here -->
-            <div style="text-align: right; padding: 10px;">
+            <div>
                 <form method="post" action="logout.php">
-                    <button type="submit" class="btn btn-danger">Logout</button>
+                    <button type="submit" class="btn btn-danger float-end">Logout</button>
+                    <h2>User Management</h2>
                 </form>
             </div>
         </header>
         <main>
-        <h2>User Management</h2>
             <?php if(isset($message)) echo "<div class='message'>$message</div>"; ?>
 
             <h3>Add New User</h3>
@@ -114,27 +114,25 @@ $conn = connectDB();
                       echo "<form method='post'>";
                       echo "<input type='hidden' name='user_id' value='".(isset($row['user_id']) ? $row['user_id'] : '')."'>";
                       echo "<td>".(isset($row['user_id']) ? $row['user_id'] : '')."</td>";
-                                            // Replace the username check with role check
-                                            if ($isSAdmin) {
-                                                echo "<td><input type='text' name='username' value='".$row['username']."'></td>";
-                                                echo "<td><input type='password' name='password' placeholder='Leave empty to keep current'></td>";
-                                                echo "<td>";
-                                                echo "<input type='submit' name='update_user' value='Update'>";
-                                                if($row['username'] != 'admin') {
-                                                    echo " <input type='submit' name='delete_user' value='Delete'>";
-                                                }
-                                                echo "</td>";
-                                            } else {
-                                                echo "<td>".$row['username']."</td>";
-                                                echo "<td>********</td>";
-                                                echo "<td>No actions available</td>";
-                                            }
+                        if ($isSAdmin) {
+                            echo "<td><input type='text' name='username' value='".$row['username']."'></td>";
+                            echo "<td><input type='password' name='password' placeholder='Leave empty to keep current'></td>";
+                            echo "<td>";
+                            echo "<input type='submit' name='update_user' value='Update'>";
+                            if($row['username'] != 'SuperAdmin') {
+                                echo " <input type='submit' name='delete_user' value='Delete'>";
+                            }
+                            echo "</td>";
+                        } else {
+                            echo "<td>".$row['username']."</td>";
+                            echo "<td>********</td>";
+                            echo "<td>No actions available</td>";
+                        }
                       echo "</form>";
                       echo "</tr>";
                 }
                 ?>
             </table>
-            <p><a href="shop_interface.php">Back to Shop Interface</a></p>
         </main>
         <footer>
             <!-- place footer here -->

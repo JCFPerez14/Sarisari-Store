@@ -72,9 +72,9 @@ $isAdmin = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
     <body>
         <header>
             <!-- place navbar here -->
-            <div style="text-align: right; padding: 10px;">
+            <div>
                 <form method="post" action="logout.php">
-                    <button type="submit" class="btn btn-danger">Logout</button>
+                <button type="submit" class="btn btn-danger float-end">Logout</button>
                 </form>
             </div>
         </header>
