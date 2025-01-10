@@ -5,7 +5,30 @@ requireLogin();
 $conn = connectDB();
 $isAdmin = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
 
+    if ($_SERVER["REQUEST_METHOD"] == "POST") {
+        // Add new item operation
+        if (isset($_POST['submit'])) {
+            $item = $_POST['item'];
+            $price = $_POST['price'];
+            $quantity = $_POST['quantity'];
+            $datemodified = date('Y-m-d H:i:s');
+
+            $sql = "INSERT INTO items (item_name, price, quantity, date_modified) 
+                    VALUES ('$item', $price, $quantity, '$datemodified')";
+
+            if ($conn->query($sql) === TRUE) {
+                echo "<p id='successMessage'>New item added successfully</p>";
+                echo "<script>
+                    setTimeout(function() {
+                        document.getElementById('successMessage').style.display = 'none';
+                    }, 3000);
+                </script>";
+            }
+        }
+    }
+
     if ($_SERVER["REQUEST_METHOD"] == "POST" && $isAdmin) {
+        
         // Delete operation
         if (isset($_POST['delete'])) {
             $id = $_POST['id'];
