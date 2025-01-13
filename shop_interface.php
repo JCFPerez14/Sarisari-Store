@@ -3,7 +3,7 @@ require_once 'db_to_php.php';
 startSecureSession();
 requireLogin();
 $conn = connectDB();
-$isAdmin = isset($_SESSION['role']) && $_SESSION['role'] === 'admin';
+$isAdmin = isset($_SESSION['role']) && ($_SESSION['role'] === 'admin' || $_SESSION['role'] === 'SuperAdmin');
 
     if ($_SERVER["REQUEST_METHOD"] == "POST") {
         // Add new item operation

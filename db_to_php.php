@@ -13,31 +13,31 @@ function connectDB() {
 }
 
 // Add this function to check admin role
-function isAdmin($conn, $username) {
+function checkRole($conn, $username, $roleToCheck) {
     $sql = "SELECT role FROM users WHERE username = '$username'";
     $result = $conn->query($sql);
+
     if ($result->num_rows > 0) {
         $row = $result->fetch_assoc();
-        return $row['role'] === 'admin';
+        return $row['role'] === $roleToCheck;
     }
-    return false;
-}
-function isSAdmin($conn, $username) {
-    $sql = "SELECT role FROM users WHERE username = '$username'";
-    $result = $conn->query($sql);
-    if ($result->num_rows > 0) {
-        $row = $result->fetch_assoc();
-        return $row['role'] === 'SuperAdmin';
-    }
+    
     return false;
 }
 
+function isAdmin($conn, $username) {
+    return checkRole($conn, $username, 'admin');
+}
+
+function isSuperAdmin($conn, $username) {
+    return checkRole($conn, $username, 'SuperAdmin');
+}
 // Session management
 function startSecureSession() {
     session_start();
     if(isset($_SESSION['username'])) {
         $conn = connectDB();
-        if(isSAdmin($conn, $_SESSION['username'])) {
+        if(isSuperAdmin($conn, $_SESSION['username'])) {
             $_SESSION['role'] = 'SuperAdmin';
         } else if(isAdmin($conn, $_SESSION['username'])) {
             $_SESSION['role'] = 'admin';

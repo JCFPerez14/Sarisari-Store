@@ -4,8 +4,8 @@ startSecureSession();
 requireLogin();
 $conn = connectDB();
 // Add admin verification before any modification operations
-    $isSAdmin = isset($_SESSION['role']) && $_SESSION['role'] === 'SuperAdmin';    
-    if ($_SERVER["REQUEST_METHOD"] == "POST" && $isSAdmin) {
+    $isSuperAdmin = isset($_SESSION['role']) && $_SESSION['role'] === 'SuperAdmin';    
+    if ($_SERVER["REQUEST_METHOD"] == "POST" && $isSuperAdmin) {
     if (isset($_POST['add_user'])) {
         $username = mysqli_real_escape_string($conn, $_POST['username']);
         $password = password_hash($_POST['password'], PASSWORD_DEFAULT);
@@ -212,7 +212,7 @@ $conn = connectDB();
                                     echo "<form method='post'>";
                                     echo "<input type='hidden' name='user_id' value='".(isset($row['user_id']) ? $row['user_id'] : '')."'>";
                                     echo "<td>".(isset($row['user_id']) ? $row['user_id'] : '')."</td>";
-                                    if ($isSAdmin) {
+                                    if ($isSuperAdmin) {
                                         echo "<td><input type='text' name='username' value='".$row['username']."' class='form-control'></td>";
                                         echo "<td><input type='password' name='password' placeholder='Leave empty to keep current' class='form-control'></td>";
                                         echo "<td class='d-flex gap-2'>";
