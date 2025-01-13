@@ -103,6 +103,15 @@ $isAdmin = isset($_SESSION['role']) && ($_SESSION['role'] === 'admin' || $_SESSI
                 padding: 0.5rem;
             }
 
+            .btn-customs {
+                color: white !important;
+            }
+            .btn-custom:hover {
+                background-color: var(--secondary-color);
+                transform: translateY(-2px);
+            }
+
+
             .btn-custom {
                 background-color: var(--primary-color);
                 color: white;
@@ -151,6 +160,7 @@ $isAdmin = isset($_SESSION['role']) && ($_SESSION['role'] === 'admin' || $_SESSI
             integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
             crossorigin="anonymous"
         />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     </head>
 
     <body>
@@ -158,11 +168,16 @@ $isAdmin = isset($_SESSION['role']) && ($_SESSION['role'] === 'admin' || $_SESSI
         <div class="container">
             <div class="d-flex justify-content-between align-items-center">
                 <h2 class="mb-0"><i class="fas fa-store me-2"></i>Shop Item Management</h2>
-                <form method="post" action="logout.php">
-                    <button type="submit" class="btn btn-danger">
-                        <i class="fas fa-sign-out-alt me-2"></i>Logout
-                    </button>
-                </form>
+                <div class="d-flex align-items-center">
+                    <a href="admin.php" class="btn btn-customs ms-2">
+                        <i class="fas fa-users-cog me-2"></i>User Management
+                    </a>
+                    <form method="post" action="logout.php">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="fas fa-sign-out-alt me-2"></i>Logout
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
         </header>
@@ -277,6 +292,3 @@ $isAdmin = isset($_SESSION['role']) && ($_SESSION['role'] === 'admin' || $_SESSI
         </script>
     </body>
 </html>
-
-
-

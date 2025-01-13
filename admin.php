@@ -150,11 +150,16 @@ $conn = connectDB();
             <div class="container">
                 <div class="d-flex justify-content-between align-items-center">
                     <h2 class="mb-0"><i class="fas fa-users-cog me-2"></i>User Management Dashboard</h2>
+                    <div class="d-flex align-items-center">
+                    <a href="shop_interface.php" class="btn btn-custom ms-2">
+                        <i class="fas fa-users-cog me-2"></i>User Management
+                    </a>
                     <form method="post" action="logout.php">
                         <button type="submit" class="btn btn-danger">
                             <i class="fas fa-sign-out-alt me-2"></i>Logout
                         </button>
                     </form>
+                    </div>
                 </div>
             </div>
         </header>
